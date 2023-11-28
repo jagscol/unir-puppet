@@ -1,23 +1,19 @@
 class blog {
-  # exec { 'apt-update':
-  #   command => '/usr/bin/apt-get update'
-  # }
-  # Exec['apt-update'] -> Package <| |>
 
-  # package { 'mysql-server':
-  #   ensure => installed,
-  # }
+  package { 'mysql-server':
+    ensure => installed,
+  }
 
-  # file { '/vagrant/modules/blog/files/wordpress.sql':
-  #   ensure => present,
-  #   source => '/vagrant/modules/blog/files/wordpress.sql',
-  # }
+  file { '/vagrant/modules/blog/files/wordpress.sql':
+    ensure => present,
+    source => '/vagrant/modules/blog/files/wordpress.sql',
+  }
 
-  # exec { 'mysql':
-  #   command => 'mysql -u root < /vagrant/modules/blog/files/wordpress.sql',
-  #   path    => ['/usr/bin', '/usr/sbin',],
-  #   require => Package['mysql-server'],
-  # }
+  exec { 'mysql':
+    command => 'mysql < /vagrant/modules/blog/files/wordpress.sql',
+    path    => ['/usr/bin', '/usr/sbin',],
+    require => Package['mysql-server'],
+  }
 
   package { 'php':
     ensure => installed,
@@ -59,4 +55,9 @@ class blog {
     hasstatus => true,
     restart   => '/usr/sbin/apachectl configtest && /usr/sbin/service apache2 reload',
   }
+
+  notify { 'URL to access the blog':
+    message => 'Please check access to http://localhost:8080',
+  }
+
 }
