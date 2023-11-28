@@ -1,0 +1,25 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/focal64"
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "private_network", ip: "192.168.1.10"
+  
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "2048"
+    vb.cpus = "2"
+  end
+  
+  config.vm.provision "shell", inline: <<-SHELL
+    wget https://apt.puppet.com/puppet8-release-focal.deb
+    sudo dpkg -i puppet8-release-focal.deb
+    apt-get update -y
+    apt-get install -y puppet-agent
+    ln -s /opt/puppetlabs/bin/puppet /usr/bin/puppet
+  SHELL
+
+  config.vm.provision "puppet" do |puppet|
+    puppet.module_path = "modules"
+    puppet.manifests_path = "manifests"
+    puppet.manifest_file = "default.pp"
+  end
+
+end
